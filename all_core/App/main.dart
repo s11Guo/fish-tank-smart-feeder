@@ -29,7 +29,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  static const _host = '192.168.4.1';
+  static const _host = '192.168.5.7';
   static const _port = 9000;
   Socket? _client;
   bool _connecting = false;

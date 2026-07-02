@@ -14,7 +14,7 @@ import sys
 import argparse
 
 # ── config ──
-ESP_HOST = "192.168.4.1"
+ESP_HOST = "192.168.5.7"
 ESP_PORT = 9000
 SERIAL_PORT = None  # set via CLI
 SERIAL_BAUD = 115200

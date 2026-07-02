@@ -1,0 +1,168 @@
+#include "asr.h"
+extern "C"{ void * __dso_handle = 0 ;}
+#include "setup.h"
+#include "HardwareSerial.h"
+#include "myLib/asr_event.h"
+
+uint32_t snid;
+void UART1_RX();
+void ASR_CODE();
+void app();
+
+//{speak:橙子-甜美客服,vol:10,speed:10,platform:haohaodada}
+//{playid:10001,voice:你好，我是鱼缸助手小曼，很高兴为你服务}
+//{playid:10002,voice:我退下了，用小曼唤醒我}
+
+void UART1_RX()
+{
+    uint8_t Rec = 0;
+
+    while (1)
+    {
+        if (Serial2.available())
+        {
+            Rec = Serial2.read();
+
+            if (Rec == 0xAA)
+            {
+                while (!Serial2.available())
+                {
+                    delay(1);
+                }
+
+                Rec = Serial2.read();
+
+                enter_wakeup(5000);
+
+                switch (Rec)
+                {
+                    case 0x06:
+                        //{playid:10500,voice:灯光正常}
+                        play_audio(10500);
+                        break;
+
+                    case 0x07:
+                        //{playid:10501,voice:灯光异常，即将开启LED灯，进行补光}
+                        play_audio(10501);
+                        break;
+
+                    case 0x08:
+                        //{playid:10502,voice:led开启完成，如需关闭请手动调整，有其它请求，请呼唤小曼}
+                        play_audio(10502);
+                        break;
+
+                    case 0x09:
+                        //{playid:10503,voice:水质正常}
+                        play_audio(10503);
+                        break;
+
+                    case 0x0A:
+                        //{playid:10504,voice:水质异常，请及时手动更换脏水，有其它需求请呼唤小曼}
+                        play_audio(10504);
+                        break;
+
+                    case 0x0B:
+                        //{playid:10505,voice:水温正常}
+                        play_audio(10505);
+                        break;
+
+                    case 0x0C:
+                        //{playid:10506,voice:温度异常，即将开启加热棒，当温度合适时候会自动关闭，如需关闭，请手动调整}
+                        play_audio(10506);
+                        break;
+
+                    case 0x0D:
+                        //{playid:10507,voice:加热棒开启完成，有其它请求，请呼唤小曼}
+                        play_audio(10507);
+                        break;
+
+                    case 0x0E:
+                        //{playid:10508,voice:即将开始正常投喂，1号投喂器内请保证有饵料，投喂时长持续1分钟}
+                        play_audio(10508);
+                        break;
+
+                    case 0x0F:
+                        //{playid:10509,voice:日常投喂完成，有其它请求，请呼唤小曼}
+                        play_audio(10509);
+                        break;
+
+                    case 0x10:
+                        //{playid:10510,voice:即将开始训饵投喂，两个投喂器内请保证有饵料}
+                        play_audio(10510);
+                        break;
+
+                    case 0x11:
+                        //{playid:10511,voice:训饵投喂完成，有其它请求，请呼唤小曼}
+                        play_audio(10511);
+                        break;
+
+                    default:
+                        break;
+                }
+            }
+        }
+
+        delay(2);
+    }
+
+    vTaskDelete(NULL);
+}
+
+/*描述该功能...
+*/
+void ASR_CODE(){
+  //语音识别功能框，与语音识别成功时被自动调用一次。
+  set_state_enter_wakeup(15000);
+  switch (snid) {
+   case 1:
+    Serial2.write(0x01);
+    break;
+   case 2:
+    Serial2.write(0x02);
+    break;
+   case 3:
+    Serial2.write(0x03);
+    break;
+   case 4:
+    Serial2.write(0x04);
+    break;
+   case 5:
+    Serial2.write(0x05);
+    break;
+  }
+
+}
+
+void app(){
+  //操作系统的一个线程，独立主循环任务,可支持多个类似线程任务。
+  //当存在多个线程任务时，注意优先级与占用内存设置。
+  while (1) {
+    delay(100);
+  }
+  vTaskDelete(NULL);
+}
+
+void hardware_init(){
+  //需要操作系统启动后初始化的内容
+  vol_set(4);
+  setPinFun(5,FORTH_FUNCTION);
+  setPinFun(6,FORTH_FUNCTION);
+  Serial2.begin(9600);
+  xTaskCreate(UART1_RX,"UART1_RX",256,NULL,4,NULL);
+  xTaskCreate(app,"app",128,NULL,4,NULL);
+  vTaskDelete(NULL);
+}
+
+void setup()
+{
+  //需要操作系统启动前初始化的内容
+  //{ID:0,keyword:"唤醒词",ASR:"小曼",ASRTO:"什么事"}
+  //{ID:1,keyword:"唤醒词",ASR:"灯光情况如何",ASRTO:"灯光正在检测，请稍后"}
+  //{ID:2,keyword:"命令词",ASR:"水质情况如何",ASRTO:"水质正在检测，请稍后"}
+  //{ID:3,keyword:"命令词",ASR:"水温情况如何",ASRTO:"水温正在检测，请稍后"}
+  //{ID:4,keyword:"命令词",ASR:"帮我进行训饵投喂",ASRTO:"马上为你开始训饵投喂"}
+  //{ID:5,keyword:"命令词",ASR:"帮我进行正常投喂",ASRTO:"马上为你开始正常投喂"}
+  setPinFun(4,FIRST_FUNCTION);
+  pinMode(4,output);
+  digitalWrite(4,0);
+}
