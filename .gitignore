@@ -1,0 +1,40 @@
+# Backup
+*.bak
+
+# Build outputs
+MDK-ARM/fish/
+MDK-ARM/*.lst
+MDK-ARM/*.uvguix.*
+MDK-ARM/*.uvoptx
+build/
+*.o
+*.d
+*.axf
+*.hex
+*.bin
+*.dep
+
+# IDE
+.vscode/
+.idea/
+*.iml
+
+# Python
+__pycache__/
+*.pyc
+
+# Flutter
+App/.dart_tool/
+App/build/
+App/.packages
+App/.flutter-plugins*
+App/.metadata
+
+# OS
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# Claude AI
+.claude/
+CLAUDE.md
